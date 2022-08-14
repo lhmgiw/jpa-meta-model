@@ -1,6 +1,7 @@
 package com.lhmgiw.jpametamodel.service.impl;
 
 import com.lhmgiw.jpametamodel.dto.BookDTO;
+import com.lhmgiw.jpametamodel.dto.common.DataTableDTO;
 import com.lhmgiw.jpametamodel.dto.common.ResponseDTO;
 import com.lhmgiw.jpametamodel.entities.Book;
 import com.lhmgiw.jpametamodel.enums.StatusEnum;
@@ -8,6 +9,7 @@ import com.lhmgiw.jpametamodel.exception.CommonServerException;
 import com.lhmgiw.jpametamodel.exception.ObjectAlreadyExistException;
 import com.lhmgiw.jpametamodel.exception.ObjectNotFoundException;
 import com.lhmgiw.jpametamodel.repository.BookRepository;
+import com.lhmgiw.jpametamodel.repository.custom.ListSlicingDAO;
 import com.lhmgiw.jpametamodel.service.BookService;
 import com.lhmgiw.jpametamodel.util.MessageResource;
 import lombok.AllArgsConstructor;
@@ -17,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,19 +44,27 @@ public class BookServiceImpl implements BookService {
     private BookRepository bookRepository;
     private ModelMapper modelMapper;
     private MessageResource messageResource;
+    private ListSlicingDAO<Book> bookListSlicingDAO;
 
     @Override
-    public Object getAllBooks() {
+    public Object getAllBooks(Map<String, Object> map, Boolean dataTable, Integer draw) {
         try {
             log.info("BookService - getAllBooks() called");
-            List<BookDTO> bookList = bookRepository.findAllByStatusNot(StatusEnum.DELETE)
+            List<Object> bookList = bookListSlicingDAO.findAllParameters(map).orElse(Collections.emptyList())
                     .stream()
                     .map(book -> modelMapper.map(book, BookDTO.class))
                     .collect(Collectors.toList());
 
-            log.info("BookService - getAllBooks() completed");
-            return new ResponseDTO<>(SUCCESS, messageResource.getMessage(FOUND),
-                    bookList);
+            if (!Optional.ofNullable(dataTable).orElse(false)) {
+                log.info("BookService - getAllBooks() completed");
+                return new ResponseDTO<>(SUCCESS, messageResource.getMessage(FOUND), bookList);
+            } else {
+                Long count = bookListSlicingDAO.rowCount(map);
+                log.info("BookService - getAllBooks() completed");
+                return new ResponseDTO<>(SUCCESS, messageResource.getMessage(FOUND),
+                        new DataTableDTO<>(count, (long) bookList.size(), bookList, draw)
+                );
+            }
 
         } catch (Exception e) {
             log.error(e.getMessage());

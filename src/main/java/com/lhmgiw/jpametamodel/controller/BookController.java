@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @CrossOrigin
 @RequestMapping(value = "/api/v1/books")
@@ -20,8 +23,28 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> getAllBooks(){
-        return ResponseEntity.status(HttpStatus.OK).body(bookService.getAllBooks());
+    public ResponseEntity<Object> getAllBooks(
+            @RequestParam(required = false) Integer start,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) String all,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) Boolean dataTable,
+            @RequestParam(required = false) Integer draw) {
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("start", start);
+        map.put("limit", limit);
+        map.put("sortBy", sortBy);
+        map.put("order", order);
+        map.put("all", all);
+        map.put("code", code);
+        map.put("name", name);
+        map.put("author", author);
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.getAllBooks(map, dataTable, draw));
     }
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})

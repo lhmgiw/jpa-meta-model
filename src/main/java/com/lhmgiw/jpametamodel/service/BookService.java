@@ -2,13 +2,18 @@ package com.lhmgiw.jpametamodel.service;
 
 import com.lhmgiw.jpametamodel.dto.BookDTO;
 
+import java.util.Map;
+
 public interface BookService {
     /**
-     * Get all books
+     * Get All Books
      *
-     * @return  - list of book DTOs
+     * @param map       -   parameters
+     * @param dataTable -   Data table or General list
+     * @param draw      -   If datatable is true; Specific draw number
+     * @return          -   Response DTO as object
      */
-    Object getAllBooks();
+    Object getAllBooks(Map<String, Object> map, Boolean dataTable, Integer draw);
 
     /**
      * Get a book by id
