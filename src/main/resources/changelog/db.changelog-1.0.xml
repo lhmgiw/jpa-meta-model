@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <property name="now" value="now()" dbms="postgresql"/>
+    <property name="dateType" value="DATETIME" dbms="postgresql"/>
+    <property name="amountType" value="numeric(10,2)" dbms="postgresql"/>
+
+    <property name="author-gayan" value="Gayan Wickramarathna"/>
+
+    <changeSet id="1.0.1" author="${author-gayan}">
+        <createTable tableName="book">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="varchar(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(100)"/>
+            <column name="author" type="varchar(150)"/>
+            <column name="price" type="${amountType}" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_on" type="${dateType}" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_on" type="${dateType}" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="book"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.2" author="${author-gayan}">
+        <loadData tableName="book" relativeToChangelogFile="false"
+                  file="changelog/data/book_initial_data_1.0.csv"/>
+    </changeSet>
+
+</databaseChangeLog>
